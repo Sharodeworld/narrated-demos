@@ -31,4 +31,4 @@ If `base_url` points at a production site, or a Bubble config or script names th
 
 ## Report
 
-Start with PASS or FAIL. Then list each finding with the step number, the exact text or selector, what you saw and what would fix it. Say which checks you ran and which you could not run. A PASS from you is a recommendation; the user still approves the script.
+Start with PASS or FAIL. Then list each finding with the step number, the exact text or selector, what you saw and what would fix it. Then, even on a PASS, list the top three improvements you would still make, ranked: pacing, narrative and what the viewer sees, not only selectors. Say which checks you ran and which you could not run. A PASS from you is a recommendation; the user still approves the script.

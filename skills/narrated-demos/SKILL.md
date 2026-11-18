@@ -15,6 +15,7 @@ Arguments, if given: `$ARGUMENTS` (a phase and a feature slug). Without them, fi
 - **Secrets stay in `.env`.** The ElevenLabs key and voice id live in `demos/.env` (git-ignored) or the shell environment. Never ask for them in chat, never echo them, never write them into a file the user did not ask for, never commit them. If one is pasted into chat, tell the user to rotate it.
 - **Non-production, fake data only.** Record against a local or staging build seeded with fictional people, companies, emails and round numbers. Never a production URL and never real customer data. If `base_url` looks like production, stop and ask.
 - **Independent review.** The agent that wrote a script never checks it, and the agent that built a video never QAs it. Use the plugin's agents: `script-writer` drafts, `script-checker` checks, `camera-editor` plans zooms, `qa-scrubber` scrubs the final video. A reviewer that finds a problem reports it; the author fixes it; the reviewer checks again.
+- **At least one revision round.** Nothing is great in one take. Every script and every video goes through at least one review, a revision by its author and a second review before the user sees it, even when the first review passes. Reviewers always name improvements, not only failures. When you show the user the result, say what the revision changed.
 - **Report what you verified.** Say which checks ran and what they showed. A script that has not been dry-run is not checked; a video nobody has watched is not QA'd.
 - `out/` holds generated files and is git-ignored. Never commit it.
 
@@ -68,7 +69,7 @@ steps:
 
 Actions are `click`, `hover` and `waitFor`, each with a Playwright selector string. A click or hover target must match exactly one visible element. Writing guidelines: 45 to 90 seconds at about 130 to 150 spoken words a minute; open with the user's problem, show the steps, close with the result; one line per on-screen action, plain sentences under 20 words; say what the viewer sees and why it matters rather than reading labels aloud; every claim must be visible on screen.
 
-Then give the script to the `script-checker` agent (never the writer). It runs `npx narrated-demos check <slug>` against the non-production build, compares each line with the screen, and reports pass or the exact failures. Loop writer and checker until it passes.
+Then give the script to the `script-checker` agent (never the writer). It runs `npx narrated-demos check <slug>` against the non-production build, compares each line with the screen, and reports pass or the exact failures, plus the improvements it would still make. The writer revises, and the checker reviews the revision. Loop until it passes, and do at least one revision round even if the first check passes.
 
 **Gate:** the user approves the script text. Changing a line later costs a new clip.
 
@@ -92,7 +93,7 @@ Optional: the `camera-editor` agent writes `demos/camera/<slug>.mjs` with zooms 
 
 ## Phase 6: QA
 
-Give the finished MP4 to the `qa-scrubber` agent (never the agent that built it). It scrubs frames for real names, emails and numbers, checks sync against the .srt, loudness, length, format and the 250 ms gaps, and reports pass or the exact timestamps that fail. If real data shows anywhere, re-seed and re-record; do not blur it.
+Give the finished MP4 to the `qa-scrubber` agent (never the agent that built it). It scrubs frames for real names, emails and numbers, checks sync against the .srt, loudness, length, format and the 250 ms gaps, and reports pass or the exact timestamps that fail, plus the improvements it would still make (pacing, camera, what the viewer sees). Revise the script, camera plan or recording, re-render, and have it QA the new cut: at least one revision round, even if the first QA passes. If real data shows anywhere, re-seed and re-record; do not blur it.
 
 **Gate:** the user watches the video, in a browser and on a phone, and signs off. Publishing is the user's decision and is outside this process.
 
