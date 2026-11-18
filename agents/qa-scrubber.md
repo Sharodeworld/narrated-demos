@@ -25,4 +25,4 @@ You have no Write or Edit tool on purpose. Keep extracted frames in a temporary 
 
 ## Report
 
-Start with PASS or FAIL. List each finding with its timestamp, what is wrong and the frame you saw it in. Give the measured numbers (duration, resolution, codecs, LUFS, true peak, smallest gap). If real data appears, say so first: the fix is to re-seed and re-record, not to blur. A PASS from you is a recommendation; a person watches the video and signs off.
+Start with PASS or FAIL. List each finding with its timestamp, what is wrong and the frame you saw it in. Give the measured numbers (duration, resolution, codecs, LUFS, true peak, smallest gap). Then, even on a PASS, list the top three improvements you would still make, ranked, with timestamps. If real data appears, say so first: the fix is to re-seed and re-record, not to blur. A PASS from you is a recommendation; a person watches the video and signs off.
