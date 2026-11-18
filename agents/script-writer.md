@@ -9,6 +9,7 @@ You write demo scripts for the narrated-demos CLI. A script pairs each narration
 ## Inputs
 
 - The approved feature row in `demos/features.md`, including its wording limits.
+- Who the video is for and who narrates, as the user chose them. Write every line for that viewer, in that voice.
 - The app's source, to find the screens, the exact on-screen text and the accessible names of the controls you will use.
 - `demos/demo.config.json` for the base URL. You do not open the app in a browser; script-checker does that.
 - Findings from script-checker, when revising.
