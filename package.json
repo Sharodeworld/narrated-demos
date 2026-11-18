@@ -1,0 +1,31 @@
+{
+  "name": "narrated-demos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Turn a YAML script into a narrated product demo video: ElevenLabs narration first, a headless Playwright recording paced to it, then an ffmpeg merge.",
+  "license": "MIT",
+  "author": "Sharodeworld",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sharodeworld/narrated-demos.git"
+  },
+  "type": "module",
+  "bin": {
+    "narrated-demos": "cli/narrated-demos.mjs"
+  },
+  "files": [
+    "cli/",
+    "lib/",
+    "templates/"
+  ],
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "2.79.0",
+    "fflate": "0.8.3",
+    "playwright-core": "1.65.0",
+    "playwright-recast": "0.23.0",
+    "yaml": "2.9.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "narrated-demos",
+  "displayName": "Narrated Demos",
+  "version": "0.1.0",
+  "description": "Phase-gated process and independent reviewer agents for narrated product demo videos, built with the narrated-demos CLI (ElevenLabs narration, Playwright recording, ffmpeg merge).",
+  "author": {
+    "name": "Sharodeworld"
+  },
+  "homepage": "https://github.com/Sharodeworld/narrated-demos",
+  "repository": "https://github.com/Sharodeworld/narrated-demos",
+  "license": "MIT",
+  "keywords": ["demo-video", "playwright", "elevenlabs", "ffmpeg", "narration"]
+}

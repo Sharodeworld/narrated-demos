@@ -1,0 +1,26 @@
+# Example script for a fictional app, Acme Tasks. Replace it with your own.
+# One step per narration line. `say` is voiced; `do` runs while it plays; `pad_ms` holds the screen
+# a little longer after the line so a result can land. Actions: click, hover, waitFor. Each takes a
+# Playwright selector string. A click or hover target must match exactly one element.
+feature: create-task
+title: Plan your week in a minute
+start_url: /tasks?demo=1
+steps:
+  - say: "Planning a week of work shouldn't take a meeting."
+    do: []
+    pad_ms: 400
+  - say: "Start from a template instead of a blank list."
+    do:
+      - click: "role=button[name='Templates']"
+      - waitFor: "text=Weekly plan"
+  - say: "Pick the weekly plan, and the usual tasks are added for you."
+    do:
+      - click: "role=option[name=/^Weekly plan/]"
+      - waitFor: "text=7 tasks added"
+  - say: "Hand each one to a teammate, or leave it open for later."
+    do:
+      - hover: "role=button[name=/^Assign/]"
+    pad_ms: 600
+  - say: "The whole week, in one list, in under a minute."
+    do: []
+    pad_ms: 1200

@@ -1,0 +1,9 @@
+{
+  "model_id": "eleven_v4",
+  "model_note": "Check ElevenLabs' models page for the current recommended narration model before the first run, and note the date you checked here.",
+  "output_format": "mp3_44100_128",
+  "voice_settings": null,
+  "voice_settings_note": "null uses the chosen voice's own defaults. Set stability, similarity_boost, style or speed here, never per script. Any change here re-voices every line.",
+  "stitching": true,
+  "stitching_note": "Sends the previous and next lines as previous_text and next_text so the clips flow together."
+}

@@ -1,0 +1,14 @@
+{
+  "name": "narrated-demos",
+  "description": "Narrated product demo videos from a YAML script.",
+  "owner": {
+    "name": "Sharodeworld"
+  },
+  "plugins": [
+    {
+      "name": "narrated-demos",
+      "source": "./",
+      "description": "Phase-gated process and independent reviewer agents for narrated product demo videos."
+    }
+  ]
+}
