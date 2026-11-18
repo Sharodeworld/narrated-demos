@@ -16,9 +16,9 @@ From the product's `demos/` folder, against the non-production build in `demo.co
 npx narrated-demos check <slug>
 ```
 
-It opens `start_url` in headless Chromium at the configured viewport, replays every action without recording, and reports each one: a click or hover target must match exactly one element, each waitFor must appear, and the camera plan's boxes (if `camera/<slug>.mjs` exists) must be measurable. It prints the word count and a length estimate and saves the last screen to `out/<slug>/check.png`.
+It opens `start_url` in headless Chromium at the configured viewport, replays every action without recording, and reports each one: a click or hover target must match exactly one visible element (hidden elements, such as a Bubble popup waiting in the page, are not counted), each waitFor must appear, and the camera plan's boxes (if `camera/<slug>.mjs` exists) must be measurable. It prints the word count and a length estimate and saves the last screen to `out/<slug>/check.png`.
 
-If `base_url` points at a production site, stop and report that instead of running anything. If the build is not running, report that; do not start or restart servers unless the user asked you to.
+If `base_url` points at a production site, or a Bubble config or script names the live branch, stop and report that instead of running anything. On a Bubble app, `check` prints the branch it ran on; confirm it is the branch the feature lives on. If the build is not running, report that; do not start or restart servers unless the user asked you to.
 
 ## What to check
 
@@ -27,6 +27,7 @@ If `base_url` points at a production site, stop and report that instead of runni
 3. Length 45 to 90 seconds by the estimate, lines under 20 words, one line per action.
 4. Wording limits in `demos/features.md` are respected; no prices unless allowed.
 5. No real person, company, email or number anywhere in the script or on the screens it visits.
+6. On a Bubble app (`"platform": "bubble"`), selectors follow this order: role and accessible name, then visible text, then an HTML id added on the development branch. Flag CSS class selectors (Bubble generates them) and anything that relies on Bubble element names, which never reach the page.
 
 ## Report
 

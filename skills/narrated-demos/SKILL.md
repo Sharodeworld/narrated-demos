@@ -28,6 +28,18 @@ Arguments, if given: `$ARGUMENTS` (a phase and a feature slug). Without them, fi
 
 Run every CLI command from `demos/`.
 
+## Bubble apps
+
+When the app is built on Bubble, set `"platform": "bubble"` and `"bubble": { "app": "<app id>", "branch": "<branch>" }` in `demo.config.json` instead of `base_url` (README, "Bubble apps"). The BuildPrint CLI (`buildprint`) must be installed. These steps and rules add to the ones above.
+
+1. **Branches.** List them with `buildprint branch list <app> --json` and show the user the names. Ask which branch to use as the default (`bubble.branch`). In Phase 1, ask for each feature which branch it lives on; a script for a feature on another branch sets `branch: <name or id>`.
+2. **Map from a read-only copy.** Read the pages, elements and workflows from a clone of that branch (`buildprint project clone <app> --branch <branch> --dir <dir>`), or from `buildprint open <file.bubble>` on an export the user gives you. Only read it.
+3. **Sign-in.** The user runs `npx narrated-demos login <email> --branch <branch>` themselves, from `demos/`, with a test user's email. Do not run it for them. Never open, print or paste anything in `demos/.auth/`: it holds a live session and the run-mode password.
+4. **Never record live.** `check` and `record` refuse the live branch and stop if a page leaves the development branch. Never open the live app (its root URL or `/version-live`) in any browser either.
+5. **One shared database.** All development branches share one database, so seeding demo data for one branch changes every branch. Ask the user before creating or changing any data, and say exactly what you will add.
+6. **No changes to the app without approval.** Never run `buildprint apply`, any data write, or `buildprint branch create` or `delete` unless the user has explicitly approved that exact action.
+7. **Selectors.** Bubble element names never reach the page and its class names are generated. Tell `script-writer` to use role and accessible name first, then visible text, then an HTML id the user adds to the element on the development branch. Hidden elements are not counted as matches. If a list renders late, add `ready: <selector>` to the script.
+
 ## Phase 1: Map features
 
 Read the app: routes, navigation, main screens, feature flags, README. Fill `demos/features.md`, one row per user-facing feature: name, entry URL, user goal in one line, key steps, data it needs, whether selectors are stable, priority. Note where recordings run, the fake seed, and wording limits (simulated or planned features, icon-only states, prices). Propose a pilot of three to five high-value features with stable UI.
@@ -54,7 +66,7 @@ steps:
       - waitFor: "text=Weekly plan"
 ```
 
-Actions are `click`, `hover` and `waitFor`, each with a Playwright selector string. A click or hover target must match exactly one element. Writing guidelines: 45 to 90 seconds at about 130 to 150 spoken words a minute; open with the user's problem, show the steps, close with the result; one line per on-screen action, plain sentences under 20 words; say what the viewer sees and why it matters rather than reading labels aloud; every claim must be visible on screen.
+Actions are `click`, `hover` and `waitFor`, each with a Playwright selector string. A click or hover target must match exactly one visible element. Writing guidelines: 45 to 90 seconds at about 130 to 150 spoken words a minute; open with the user's problem, show the steps, close with the result; one line per on-screen action, plain sentences under 20 words; say what the viewer sees and why it matters rather than reading labels aloud; every claim must be visible on screen.
 
 Then give the script to the `script-checker` agent (never the writer). It runs `npx narrated-demos check <slug>` against the non-production build, compares each line with the screen, and reports pass or the exact failures. Loop writer and checker until it passes.
 

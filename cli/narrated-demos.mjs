@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // The narrated-demos command. Every subcommand except init runs from a product's demos/ folder.
 import { existsSync } from "node:fs";
+import { parseArgs } from "node:util";
 
 const USAGE = `Usage: narrated-demos <command>
 
@@ -10,6 +11,8 @@ const USAGE = `Usage: narrated-demos <command>
   record <slug>   Headless recording paced to the clips.
   merge <slug>    Final MP4 and SRT in out/<slug>/.
   run <slug>      voice, record and merge in turn.
+  login <email>   Bubble apps: sign in to a development branch as a test user, saved to .auth/.
+                  --branch <name or id> picks the branch (default: bubble.branch in demo.config.json).
 
 Run every command except init from the demos folder, next to demo.config.json.
 Secrets are read from the environment or from a .env file in that folder.`;
@@ -26,6 +29,12 @@ try {
   if (cmd === "init") {
     const { init } = await import("../lib/init.mjs");
     init(arg);
+  } else if (cmd === "login") {
+    const { values, positionals } = parseArgs({ args: process.argv.slice(3), options: { branch: { type: "string" } }, allowPositionals: true });
+    if (positionals.length !== 1 || !positionals[0].includes("@")) fail("narrated-demos login needs the test user's email, such as: narrated-demos login demo@acme-crm.example --branch demo-videos");
+    if (!existsSync("demo.config.json")) fail("No demo.config.json here. Run this from your demos folder.");
+    const { login } = await import("../lib/login.mjs");
+    login(positionals[0], values.branch);
   } else if (["check", "voice", "record", "merge", "run"].includes(cmd)) {
     if (!arg) fail(`narrated-demos ${cmd} needs a feature slug, such as: narrated-demos ${cmd} create-task`);
     if (!/^[a-z0-9][a-z0-9-]*$/.test(arg)) fail(`"${arg}" is not a slug: use lowercase letters, digits and hyphens`);

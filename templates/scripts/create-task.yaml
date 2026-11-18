@@ -1,7 +1,7 @@
 # Example script for a fictional app, Acme Tasks. Replace it with your own.
 # One step per narration line. `say` is voiced; `do` runs while it plays; `pad_ms` holds the screen
 # a little longer after the line so a result can land. Actions: click, hover, waitFor. Each takes a
-# Playwright selector string. A click or hover target must match exactly one element.
+# Playwright selector string. A click or hover target must match exactly one visible element.
 feature: create-task
 title: Plan your week in a minute
 start_url: /tasks?demo=1

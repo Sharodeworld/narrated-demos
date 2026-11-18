@@ -24,7 +24,7 @@ The repository is two things:
 - **Headless Chromium** for playwright-core 1.65.0: `npx playwright-core install chromium-headless-shell`. To use a binary you already have, set `DEMO_CHROMIUM_PATH` to a `chrome-headless-shell` executable.
 - **An ElevenLabs account on a paid plan.** Check that your plan's terms cover commercial use of the audio before you publish a video.
 - **A voice id** chosen from your ElevenLabs voice library.
-- **A non-production build of your app with fake data** that opens without a sign-in screen (see [Safety](#safety)).
+- **A non-production build of your app with fake data** that opens without a sign-in screen (see [Safety](#safety)). For a Bubble app, a development branch and the BuildPrint CLI instead (see [Bubble apps](#bubble-apps)).
 
 ## Quickstart with Claude Code
 
@@ -66,11 +66,12 @@ Run every command except `init` from the `demos/` folder.
 | Command | What it does | Writes |
 | --- | --- | --- |
 | `init [dir]` | Scaffolds a demos folder (default `./demos`). Keeps any file that already exists. | the files below |
-| `check <slug>` | Replays the script headless without recording or pacing. Fails if a click or hover target does not match exactly one element, a `waitFor` never appears, or a camera box cannot be measured. Prints a length estimate. | `out/<slug>/check.png` |
+| `check <slug>` | Replays the script headless without recording or pacing. Fails if a click or hover target does not match exactly one visible element, a `waitFor` never appears, or a camera box cannot be measured. Prints a length estimate. | `out/<slug>/check.png` |
 | `voice <slug>` | One ElevenLabs clip per line, cached (see [Voice cache](#voice-cache)). Needs the API key and voice id. | `out/<slug>/audio/`, `timings.json` |
 | `record <slug>` | Headless recording paced to the clips. A slow action makes the narration wait; it is never cut short. | `out/<slug>/recording/`, `cues.json` |
 | `merge <slug>` | Builds the video and captions, prints every gap and the loudness, and fails if any line ends less than 250 ms before the next. | `out/<slug>/<slug>.mp4`, `<slug>.srt` |
 | `run <slug>` | `voice`, `record` and `merge` in turn. | all of the above |
+| `login <email>` | Bubble apps only: signs in to a development branch as a test user. `--branch <name or id>` picks the branch. You run it yourself. | `.auth/<branch id>.json` |
 
 ## The demos folder
 
@@ -83,7 +84,8 @@ demos/
   camera/<slug>.mjs    # optional camera plan per script
   .env.example         # variable names only
   .env                 # your secrets, git-ignored
-  .gitignore           # out/ and .env
+  .auth/               # Bubble sign-ins saved by login, git-ignored
+  .gitignore           # out/, .env and .auth/
   out/                 # generated, git-ignored
 ```
 
@@ -93,6 +95,7 @@ demos/
 
 ```json
 {
+  "platform": "web",
   "base_url": "http://localhost:3000",
   "viewport": { "width": 1920, "height": 1080 },
   "brand": {
@@ -105,6 +108,7 @@ demos/
 }
 ```
 
+- `platform`: `web` (the default) or `bubble`, which replaces `base_url` with a `bubble` block (see [Bubble apps](#bubble-apps)).
 - `base_url`: the build to record. `DEMO_BASE_URL` in the environment overrides it.
 - `viewport`: the browser size, which must be 16:9. It is recorded at 2x and placed in the 1920x1080 frame.
 - `brand.name` is the wordmark on the title and end cards. `brand.logo` (a PNG, JPEG, SVG or WebP path relative to `demos/`) replaces the wordmark when set. `font` is a CSS font stack; quote font names with single quotes.
@@ -131,7 +135,9 @@ steps:
       - waitFor: "text=Weekly plan"
 ```
 
-`say` is voiced. `do` lists actions that run while it plays: `click`, `hover` or `waitFor`, each with a [Playwright selector](https://playwright.dev/docs/other-locators). A click or hover target must match exactly one element; prefer `data-testid` or role and accessible name. `pad_ms` holds the screen after the line so a result can land.
+`say` is voiced. `do` lists actions that run while it plays: `click`, `hover` or `waitFor`, each with a [Playwright selector](https://playwright.dev/docs/other-locators). A click or hover target must match exactly one visible element (hidden elements are not counted); prefer `data-testid` or role and accessible name. `pad_ms` holds the screen after the line so a result can land.
+
+Optional top-level keys: `ready`, a selector to wait for after the start page loads, for elements that render late; and, for Bubble apps, `branch` (see below).
 
 Aim for 45 to 90 seconds at 130 to 150 words a minute, one plain sentence under 20 words per action, opening with the user's problem and ending with the result.
 
@@ -166,6 +172,27 @@ Each beat is `{ s, e, zoom, highlights }`. `zoom` is `{ x, y, level }` with the 
 
 `voice` stores each clip's hash in `out/<slug>/audio/manifest.json`. The hash is the first 16 hex characters of `sha256(JSON.stringify({ voiceId, request }))`, where `request` is exactly what is sent to ElevenLabs (text, model, output format, voice settings, and the previous and next lines when stitching is on). A clip is fetched again only when its hash changes, so editing one line re-bills that line and its neighbours. Deleting `out/` deletes the cache.
 
+## Bubble apps
+
+For an app built on [Bubble](https://bubble.io), set `platform` to `bubble` and name the app and its default development branch instead of `base_url`:
+
+```json
+{
+  "platform": "bubble",
+  "bubble": { "app": "acme-crm", "branch": "demo-videos" },
+  "viewport": { "width": 1920, "height": 1080 }
+}
+```
+
+You also need the [BuildPrint](https://buildprint.ai) CLI (`npm i -g buildprint`). List an app's branches with `buildprint branch list <app> --json`.
+
+- **A development branch, never live.** `check` and `record` look up the branch's run-mode URL with `buildprint branch <app> <branch> --json`; `base_url` and `DEMO_BASE_URL` are not used. They refuse the live branch, refuse any start URL outside the branch's `/version-<id>` path, and stop if a page navigates out of it, because apps can redirect to live. A navigation the page starts (a link or a script) is blocked before it is sent. A server redirect is followed by the browser before it can be blocked, so the run stops at once and `record` deletes the recording.
+- **A branch per script.** Not every feature is on the default branch. A script sets `branch: <name or id>` to run on another one.
+- **Signing in.** From the demos folder, run `npx narrated-demos login <email> --branch <name or id>` yourself, with the email of a test user on that branch. It uses BuildPrint's "run as" sign-in (no user password; you need a BuildPrint sign-in with access to the app) and saves the session cookies and the branch's run-mode basic auth to `.auth/<branch id>.json`, readable only by you. It prints no cookie or password. `init` and `login` keep `.auth/` in `.gitignore`. `check` and `record` load the file for the branch they run on; `DEMO_BASIC_AUTH_USER` and `DEMO_BASIC_AUTH_PASSWORD` in `.env` override the saved basic auth. The basic auth is sent only to the app's own origin. Run `login` again when the session expires.
+- **Selectors.** Bubble element names never reach the page and its class names are generated. Use role and accessible name first (Bubble buttons are real buttons), then visible text, then an HTML id you add to the element on the development branch. Bubble keeps popups in the page, hidden, until they open; hidden elements are never counted as matches.
+- **Timing.** Bubble has no page-ready event. After the start page reaches network idle, the run waits 1 s more. Set `ready` in a script to also wait for an element that renders late, such as a list's first row.
+- **Data.** All development branches share one database, so demo data seeded for one branch shows on every branch. Agree on fictional seed data with the app's owner before adding any.
+
 ## Secrets
 
 The ElevenLabs key and voice id live in `demos/.env`, which `init` adds to `.gitignore`, or in your shell environment (shell values win). Never commit them, never put them in config files or scripts, and never paste them into a chat, an issue or a pull request. If a key is exposed, rotate it in ElevenLabs.
@@ -175,7 +202,7 @@ The ElevenLabs key and voice id live in `demos/.env`, which `init` adds to `.git
 - **Record against non-production only**: a local or staging build, never your live site.
 - **Use fake data**: fictional people, companies, emails and round numbers. Demo videos get shared widely; anything on screen is public.
 - **Scrub before publishing.** A person checks every frame for real names, emails and numbers. If real data appears, re-seed and re-record.
-- The recorder does not sign in. Point `base_url` at a build that opens on the screen you want, signed in as a demo user, so no login screen or password ever appears in a video.
+- The recorder does not sign in. Point `base_url` at a build that opens on the screen you want, signed in as a demo user, so no login screen or password ever appears in a video. Bubble apps sign in with `login` instead (see [Bubble apps](#bubble-apps)).
 
 ## Credits
 
